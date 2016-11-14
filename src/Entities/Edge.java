@@ -11,6 +11,7 @@ public class Edge {
     private Location location;
     private static double SLA = 0.05;
     private int numRequests=0;               //fill with num requests
+    List<ResultList> results;
 
     public Edge(int numPms) {
         pms = new ArrayList<PhysicalMachine>(numPms);
@@ -20,15 +21,15 @@ public class Edge {
         return pms.size();
     }
 
-    public List<ResultList> distributeWorkload() {
-        List<ResultList> results = new ArrayList<ResultList>();
+    public boolean distributeWorkload() {
+        results = new ArrayList<ResultList>();
         for(PhysicalMachine pm: pms){
             results.add(pm.distributeWorkload());
         }
-        checkSla(results);
-        return results;
+        boolean success = checkSla();
+        return success;
     }
-    private boolean checkSla(List<ResultList> results){
+    private boolean checkSla(){
         int totalFailed=0;
         for(ResultList result : results){
             totalFailed += result.getFailedRequests();
@@ -37,6 +38,9 @@ public class Edge {
             return true;
         else
             return false;
+    }
+    public List<ResultList> getResults(){
+        return results;
     }
 }
 
