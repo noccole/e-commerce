@@ -1,6 +1,9 @@
 import Entities.Edge;
 import Entities.PhysicalMachine;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.util.List;
 
 /**
@@ -26,4 +29,27 @@ public class Controller {
     public void distributeWorkloadPm(PhysicalMachine failedPm, PhysicalMachine newPm){
 
     }*/
+
+    public static final int UDP_PACKET_BUFFER_SIZE = 1024;
+    public static final String UDP_PACKET_CONTROL_SIZE_PREFIX = "!CONTROL.SIZE:";
+    private DatagramSocket udpSocket;
+
+    public Controller(int udpPort) throws IOException {
+        socketInit(udpPort);
+    }
+
+    public void socketInit(int port) throws IOException {
+        if(this.udpSocket == null || this.udpSocket.isClosed()){
+            this.udpSocket = new DatagramSocket(port);
+        }
+    }
+
+    public Runnable socketAccept() throws IOException {
+        byte[] receiveData = new byte[UDP_PACKET_BUFFER_SIZE];
+        final DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+        this.udpSocket.receive(receivePacket);
+        String msg = new String(receivePacket.getData(), 0, receivePacket.getLength());
+        System.out.println(msg);
+        return null;
+    }
 }
