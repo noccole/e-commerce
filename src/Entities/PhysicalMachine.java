@@ -1,5 +1,6 @@
 package Entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -7,17 +8,23 @@ import java.util.List;
  */
 public class PhysicalMachine {
     private List<VirtualMachine> vms;
-    private Process p;
-    private boolean isFailed;
 
-    public PhysicalMachine(){
-        //p = new Process();
+    public PhysicalMachine(int numVms) {
+        vms = new ArrayList<VirtualMachine>(numVms);
     }
 
-    public void edgeFails(){
-        isFailed = true;
+    public int getPmSize() {
+        return vms.size();
     }
-    public boolean getIsFailed(){
-        return isFailed;
+
+    public ResultList distributeWorkload() {
+        ResultList results = new ResultList();
+        for(VirtualMachine vm: vms){
+            results.addResult(vm.execute());
+        }
+        results.calculateStartingPoint();
+        results.calculateFailedRequests();
+        return results;
     }
+
 }
