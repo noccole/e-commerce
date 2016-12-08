@@ -9,7 +9,7 @@ import java.util.List;
 public class Edge {
     private List<PhysicalMachine> pms;
     private Location location;
-    private static double SLA = 0.05;
+    private static double SLA = 0.02;
     private int numRequests=0;               //fill with num requests
     List<ResultList> results;
 
