@@ -1,9 +1,11 @@
 import Entities.Edge;
 import Entities.PhysicalMachine;
+import Entities.Request;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -18,7 +20,13 @@ public class Controller {
 
     public void distributeWorkloadOnAllNodes(){
 
-        //Distribute workload with bfd heuristic
+        //TODO: Distribute workload with bfd heuristic
+
+        //example for distributing requests on an edge
+        Edge edge1 = new Edge(10);
+        List<Request> requests = new ArrayList<Request>();
+        edge1.distributeWorkload(requests);
+
     }
    /* public void listenForFailedNodes(){
         //if a pm/edge fails -> retry with the same workload on the same node

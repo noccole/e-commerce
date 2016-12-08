@@ -18,6 +18,7 @@ public class Edge {
     private long durationRequest=0;			//Durationtime of a request
     private long durationRequestTotal=0;
     private long durationRecovery=0;		//Durationtime of recovery
+    private boolean failure;
 
     public Edge(int numPms) {
         pms = new ArrayList<PhysicalMachine>(numPms);
@@ -27,11 +28,11 @@ public class Edge {
         return pms.size();
     }
 
-    public boolean distributeWorkload() {
+    public boolean distributeWorkload(List<Request> requests) {
         boolean success = false;
         results = new ArrayList<ResultList>();
         for(PhysicalMachine pm: pms){
-            results.add(pm.distributeWorkload());
+            results.add(pm.execute(requests));
         }
         if(checkPerformance()==true && checkLatency()==true && checkRecovery()==true){
             success=true;

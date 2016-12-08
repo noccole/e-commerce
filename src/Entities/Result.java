@@ -4,14 +4,14 @@ package Entities;
  * Created by Nicole on 14/11/16.
  */
 public class Result {
-    private boolean success;
-    //private HttpRequest request;
+    private boolean failure;
+    private Request request;
 
-    public Result(boolean success){
-        this.success = success;
-        //this. request = request;
+    public Result(Request request, boolean failure){
+        this.failure = failure;
+        this.request = request;
     }
     public boolean getSuccess(){
-        return success;
+        return failure;
     }
 }
