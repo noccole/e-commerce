@@ -7,6 +7,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         Controller cont = new Controller(14271);
+        cont.distributeWorkloadOnAllNodes();
         while(true) {
             cont.socketAccept();
         }

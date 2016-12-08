@@ -8,13 +8,17 @@ import java.util.List;
  */
 public class PhysicalMachine {
     private List<VirtualMachine> vms;
+    private boolean success;
     private int memory;
     private int cpu;
-    private int bandwidth;
+    private int network;
+    private int energyCpu;
+    private int energyMemory;
+    private int energyNetwork;
 
-    private double consumedMemory;
-    private double consumedCPU;
-    private double consumedNetworkBandwidth;       //depends on the consumed memory
+    private double workloadrateCpu;            // in percent
+    private double workloadrateMemory;
+    private double workloadrateNetwork;
 
     private int idleStateEnergyConsumption;
 
@@ -22,6 +26,10 @@ public class PhysicalMachine {
         vms = new ArrayList<VirtualMachine>(numVms);
         memory = 4000;
         cpu = 2000;
+        network= 100;
+        energyCpu = 95;             // energy in watt
+        energyMemory = 5;
+        energyNetwork = 3;
         idleStateEnergyConsumption = 20;
     }
 
@@ -29,23 +37,27 @@ public class PhysicalMachine {
         return vms.size();
     }
 
-    public void execute(){
-        // set consumedMemory;
-        //set consumedCPU;
-        // set consumedNetworkBandwidth;
-    }
-    public ResultList distributeWorkload() {
+    public ResultList execute(List<Request> requests){
+        if(requests.size() != this.getPmSize()) {
+            success = false;
+            return null;
+        }
+        // TODO: calculate workloads
         ResultList results = new ResultList();
+        int index=0;
         for(VirtualMachine vm: vms){
-            results.addResult(vm.execute());
+            results.addResult(vm.execute(requests.get(index++)));
         }
         results.calculateStartingPoint();
         results.calculateFailedRequests();
         return results;
     }
 
+
+
     public double getTotalEnergyUtilization(){
-        return idleStateEnergyConsumption + consumedCPU *cpu + consumedMemory* memory + consumedNetworkBandwidth * bandwidth;
+        // consumed Cpu = workloadRateCpu * MaxCpu
+        return idleStateEnergyConsumption + workloadrateCpu *energyCpu + workloadrateMemory* energyMemory + workloadrateNetwork * energyNetwork;
     }
 
 }
