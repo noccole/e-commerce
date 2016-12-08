@@ -70,7 +70,24 @@ public class Edge {
     }
 
     private boolean checkRecovery(){
-        if(durationRecovery < 0.2){
+        double mttr = 0;
+        if(durationRecovery < SLA_Recovery){
+            return true;
+        }
+        else {
+            return false;
+        }
+        /*
+        Mean time to recover from failure:
+        MTTR = totalDownTimeCausedByFailure/numberOfBreakdowns
+         */
+    }
+
+    private boolean checkAvailabilty(){
+        int availability = 0;
+        //availability = uptime/(uptime+downtime);          TODO: woher bekommen wir dieuptime und downtime
+
+        if(availability >= 0.98){
             return true;
         }
         else {
