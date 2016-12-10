@@ -19,20 +19,20 @@ public class Edge {
     private long durationRequest=0;			//Durationtime of a request
     private long durationRequestTotal=0;
     private long durationRecovery=0;		//Durationtime of recovery
-    private boolean failure;
+    private State state;
+    private int idleStateEnergyConsumption=0;
 
     public Edge(int numPms, int numVms, Location location) {
+        state = State.NEW;
         pms =  new ArrayList<PhysicalMachine>();
         this.location = location;
         for (int i =0; i<numPms; i++){
-            pms.add(new PhysicalMachine(numVms));
+            PhysicalMachine pm = new PhysicalMachine(numVms);
+            idleStateEnergyConsumption+= pm.getIdleStateEnergyConsumption();
+            pms.add(pm);
+
         }
 
-
-    }
-
-    public int getEdgeSize() {
-        return pms.size();
     }
 
     public boolean distributeWorkload(Stack<Request> requests) {
@@ -47,6 +47,13 @@ public class Edge {
         }
 
         return checkSlas();
+    }
+    public double getTotalEnergyUtilization(){
+        int totalEnergyUtilization = 0;
+        for(PhysicalMachine pm : pms){
+            totalEnergyUtilization += pm.getTotalEnergyUtilization();
+        }
+        return idleStateEnergyConsumption + totalEnergyUtilization;
     }
     private boolean checkSlas(){
         if(checkPerformance() && checkLatency() && checkRecovery()){
@@ -106,6 +113,9 @@ public class Edge {
         return false;
     }
 
+    public int getEdgeSize() {
+        return pms.size();
+    }
     public List<ResultList> getResults(){
         return results;
     }

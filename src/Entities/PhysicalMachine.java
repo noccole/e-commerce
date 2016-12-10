@@ -11,10 +11,11 @@ import java.util.logging.Logger;
  */
 public class PhysicalMachine {
     private List<VirtualMachine> vms;
-    private boolean success;
+    private State state;
     private int memory;
     private int cpu;
     private int network;
+
     private int energyCpu;
     private int energyMemory;
     private int energyNetwork;
@@ -37,25 +38,32 @@ public class PhysicalMachine {
         energyMemory = 5;
         energyNetwork = 3;
         idleStateEnergyConsumption = 20;
+        workloadrateCpu = 0.5;                      //TODO: set workloadrates randomly (?)
+        workloadrateMemory = 0.4;
+        workloadrateNetwork = 0.1;
+        state = State.NEW;
         results = new ResultList();
         createVms(numVms);
     }
     private void createVms(int numVms){
         for(int i =0; i<numVms; i++) {
-            vms.add(createVmWithNormallyDistributedVariables());
+            vms.add(createVmWithNormallyDistributedVariables(numVms));
         }
     }
     //method for normal distributing the variables: memory, cpu, startTime and duration
-    public VirtualMachine createVmWithNormallyDistributedVariables(){
+    public VirtualMachine createVmWithNormallyDistributedVariables(int numVms){
         Random r = new Random();
-        int memoryVm = (int) Math.floor(r.nextGaussian()*400+1000);               //1 GByte mean
-        int cpuVm = (int) Math.floor(r.nextGaussian()*400+500);                   // 500 MByte mean
-        int networkVm = (int) Math.floor(r.nextGaussian()*20+100);       // 100 MByte mean
+        int memoryVm = (int) Math.floor(r.nextGaussian()*100+(memory/numVms));               //1 GByte mean
+        int cpuVm = (int) Math.floor(r.nextGaussian()*400+(cpu/numVms));                   // 500 MByte mean
+        int networkVm = (int) Math.floor(r.nextGaussian()*20+(network/numVms));       // 100 MByte mean
 
-        return new VirtualMachine(memoryVm, cpuVm, networkVm);
+        //depends linearly on the combination of the utilized memory, CPU and network bandwidth)
+        double pageDirtyingRate = (memoryVm/memory)+(cpuVm/cpu)+(networkVm/network);        //TODO: check calculation of rate
+        return new VirtualMachine(memoryVm, cpuVm, networkVm, pageDirtyingRate);
     }
 
     public ResultList execute(Stack<Request> requests){
+        this.state = State.PROCESSING;
         if(requests.size() > this.getPmSize()) {
             logger.info("location: " + requests.peek().getLocation() + " vms/ numrequests: "+ this.getPmSize() + "/" + requests.size() );
         }
@@ -72,6 +80,7 @@ public class PhysicalMachine {
 
         results.calculateStartingPoint();
         results.calculateFailedRequests();
+        this.state = State.IDLE;
         return results;
     }
 
@@ -84,4 +93,7 @@ public class PhysicalMachine {
         return vms.size();
     }
 
+    public int getIdleStateEnergyConsumption() {
+        return idleStateEnergyConsumption;
+    }
 }
