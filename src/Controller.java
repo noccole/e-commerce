@@ -1,4 +1,5 @@
 import Entities.Edge;
+import Entities.Location;
 import Entities.PhysicalMachine;
 import Entities.Request;
 
@@ -6,7 +7,9 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Created by Nicole on 9/11/16.
@@ -15,19 +18,71 @@ import java.util.List;
 //http://jmeter.apache.org/usermanual/index.html
 
 public class Controller {
-    private static double SLA_PERCENT_NUM_FAILURES = 0.05; //maximize the value but be below the threshold
-    private List<Edge> edges;
 
+    private List<Edge> edges;
+    private Collection<Request> requests;
+
+    public Controller(int numRequests){
+        edges = new ArrayList<Edge>();
+        edges.add(new Edge(5, 8, Location.NORTH));
+        edges.add(new Edge(10, 12, Location.EAST));
+        edges.add(new Edge(2, 3, Location.SOUTH));
+        edges.add(new Edge(6, 6, Location.WEST));
+
+        createWorkload(numRequests);
+    }
+
+    public void createWorkload(int numRequests){
+        requests = new Stack<Request>();
+
+        for(int i=0; i<100; i++){
+            requests.add(createRequestWithUniformVariables());
+        }
+    }
     public void distributeWorkloadOnAllNodes(){
 
         //TODO: Distribute workload with bfd heuristic
 
-        //example for distributing requests on an edge
-        Edge edge1 = new Edge(10);
-        List<Request> requests = new ArrayList<Request>();
-        edge1.distributeWorkload(requests);
+        Stack<Request> requestsNorth = new Stack<Request>();
+        Stack<Request> requestsEast = new Stack<Request>();
+        Stack<Request> requestsSouth = new Stack<Request>();
+        Stack<Request> requestsWest = new Stack<Request>();
+        for(Request request : requests){
+                Location location = request.getLocation();
+                if(location == Location.NORTH) {
+                    requestsNorth.add(request);
+                }else if(location == Location.EAST){
+                    requestsEast.add(request);
+                }else if(location == Location.SOUTH){
+                    requestsSouth.add(request);
+                }else if(location == Location.WEST){
+                    requestsWest.add(request);
+                }
+        }
+        for(Edge edge : edges){
+            Location location = edge.getLocation();
+            if(location == Location.NORTH) {
+                edge.distributeWorkload(requestsNorth);
+            }else if(location == Location.EAST){
+                edge.distributeWorkload(requestsEast);
+            }else if(location == Location.SOUTH){
+                edge.distributeWorkload(requestsSouth);
+            }else if(location == Location.WEST){
+                edge.distributeWorkload(requestsWest);
+            }
+
+        }
 
     }
+
+    //method for uniformly distributing the request variables: memory, cpu, startTime and duration
+    public Request createRequestWithUniformVariables(){
+        int startTime = (int)(Math.random()*1481213984);                 //date of 8.12.2016 as mean value
+        int duration = (int)(Math.random()*7);                              // 5 is max for sla
+        Request request = new Request(startTime, duration);
+        return request;
+    }
+
    /* public void listenForFailedNodes(){
         //if a pm/edge fails -> retry with the same workload on the same node
     }
@@ -42,9 +97,9 @@ public class Controller {
     public static final String UDP_PACKET_CONTROL_SIZE_PREFIX = "!CONTROL.SIZE:";
     private DatagramSocket udpSocket;
 
-    public Controller(int udpPort) throws IOException {
+    /*public Controller(int udpPort) throws IOException {
         socketInit(udpPort);
-    }
+    }*/
 
     public void socketInit(int port) throws IOException {
         if(this.udpSocket == null || this.udpSocket.isClosed()){

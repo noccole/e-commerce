@@ -7,11 +7,12 @@ import java.util.Random;
  */
 public class VirtualMachine {
 
+    State state;
     private boolean hasFailed;
     //all sizes in MB bzw. MB/s
     private int memory;
     private int cpu;
-    private int networkBandwidth;
+    private int network;
     boolean failure;
 
     private double consumedMemory;
@@ -19,20 +20,23 @@ public class VirtualMachine {
     private double consumedNetworkBandwidth;       //depends on the consumed memory
     private double pageDirtyingRate;            //depends linearly on the combination of the utilized memory, CPU and network bandwidth)
 
-    //TODO: origin of the request
+    public VirtualMachine(int memory, int cpu, int network){
+            state = State.IDLE;
+            this.memory = memory;
+            this.cpu = cpu;
+            this.network = network;
+    }
 
     public Result execute(Request request){        //add param request
-        distributeVariablesNormally();
-
+        state = state.PROCESSING;
         return request.execute();
     }
 
-    //method for normal distributing the variables: memory, cpu, startTime and duration
-    public void distributeVariablesNormally(){
-        Random r = new Random();
-        memory = (int) Math.floor(r.nextGaussian()*400+1000);               //1 GByte mean
-        cpu = (int) Math.floor(r.nextGaussian()*400+500);                   // 500 MByte mean
-        networkBandwidth = (int) Math.floor(r.nextGaussian()*20+100);       // 100 MByte mean
+    public State getState() {
+        return state;
     }
 
+    public void setState(State state) {
+        this.state = state;
+    }
 }
