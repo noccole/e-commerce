@@ -20,6 +20,7 @@ public class VirtualMachine {
     private double consumedNetworkBandwidth;       //depends on the consumed memory
     private double pageDirtyingRate;            //depends linearly on the combination of the utilized memory, CPU and network bandwidth)
 
+    private Random r;
     public VirtualMachine(int memory, int cpu, int network){
             state = State.IDLE;
             this.memory = memory;
@@ -27,9 +28,11 @@ public class VirtualMachine {
             this.network = network;
     }
 
-    public Result execute(Request request){        //add param request
+    public Request execute(Request request){        //add param request
         state = state.PROCESSING;
-        return request.execute();
+        Request result = request.execute();
+        state = state.IDLE;
+        return result;
     }
 
     public State getState() {

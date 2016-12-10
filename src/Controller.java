@@ -6,10 +6,7 @@ import Entities.Request;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 
 /**
  * Created by Nicole on 9/11/16.
@@ -20,7 +17,8 @@ import java.util.Stack;
 public class Controller {
 
     private List<Edge> edges;
-    private Collection<Request> requests;
+    private Stack<Request> requests;
+    private Random r = new Random();
 
     public Controller(int numRequests){
         edges = new ArrayList<Edge>();
@@ -36,7 +34,7 @@ public class Controller {
         requests = new Stack<Request>();
 
         for(int i=0; i<100; i++){
-            requests.add(createRequestWithUniformVariables());
+            requests.push(createRequestWithUniformVariables());
         }
     }
     public void distributeWorkloadOnAllNodes(){
@@ -50,13 +48,13 @@ public class Controller {
         for(Request request : requests){
                 Location location = request.getLocation();
                 if(location == Location.NORTH) {
-                    requestsNorth.add(request);
+                    requestsNorth.push(request);
                 }else if(location == Location.EAST){
-                    requestsEast.add(request);
+                    requestsEast.push(request);
                 }else if(location == Location.SOUTH){
-                    requestsSouth.add(request);
+                    requestsSouth.push(request);
                 }else if(location == Location.WEST){
-                    requestsWest.add(request);
+                    requestsWest.push(request);
                 }
         }
         for(Edge edge : edges){
@@ -79,7 +77,12 @@ public class Controller {
     public Request createRequestWithUniformVariables(){
         int startTime = (int)(Math.random()*1481213984);                 //date of 8.12.2016 as mean value
         int duration = (int)(Math.random()*7);                              // 5 is max for sla
-        Request request = new Request(startTime, duration);
+
+        List<Location> VALUES = Collections.unmodifiableList(Arrays.asList(Location.values()));
+
+        Location randomLocation = VALUES.get(r.nextInt(VALUES.size()));
+
+        Request request = new Request(startTime, duration, randomLocation);
         return request;
     }
 

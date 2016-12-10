@@ -7,20 +7,21 @@ import java.util.List;
  * Created by Nicole on 14/11/16.
  */
 public class ResultList {
-    private List<Result> results;
+    private List<Request> results;
     private int startingPoint;
     private int numFailedRequests;
 
     public ResultList(){
-        this.results = new ArrayList<Result>();
+        this.results = new ArrayList<Request>();
     }
-    public void addResult(Result result){
-        results.add(result);
+    public void addRequest(Request request){
+        results.add(request);
     }
+
     public void calculateStartingPoint(){
         int i=1;
-        for (Result result : results){
-            if(!result.getSuccess()) {       //first Failure
+        for (Request request : results){
+            if(!request.getSuccess()) {       //first Failure
                 startingPoint = i;
                 return;
             }
@@ -28,8 +29,8 @@ public class ResultList {
         }
     }
     public void calculateFailedRequests(){
-        for (Result result : results){
-            if(!result.getSuccess())
+        for (Request request : results){
+            if(!request.getSuccess())
                 numFailedRequests++;
         }
     }

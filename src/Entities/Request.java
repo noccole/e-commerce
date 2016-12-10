@@ -7,17 +7,26 @@ import java.util.Random;
  */
 public class Request {
 
-    Location location;
+    private Location location;
+    private State state;
     private int startTime;
     private int duration;           //milliseconds, max 5 ms
+    private Random r = new Random();
 
-
-    public Request(int startTime, int duration){
+    public Request(int startTime, int duration, Location location){
+        state = State.NEW;
         this.startTime = startTime;
         this.duration = duration;
+        this.location = location;
     }
-    public Result execute(){
-        return new Result(this, false);
+    public Request execute(){
+
+        if(r.nextBoolean())
+            state= State.SUCCESS;
+        else
+            state = State.FAILED;
+
+        return this;
     }
 
     public int getStartTime() {
@@ -38,6 +47,12 @@ public class Request {
 
     public Location getLocation() {
         return location;
+    }
+    public boolean getSuccess(){
+        if(state == State.SUCCESS)
+            return true;
+
+       return false;
     }
 
 }

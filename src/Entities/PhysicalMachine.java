@@ -57,15 +57,15 @@ public class PhysicalMachine {
 
     public ResultList execute(Stack<Request> requests){
         if(requests.size() > this.getPmSize()) {
-            logger.info("too many requests for this machine" + requests.size() + " vms: "+ this.getPmSize());
+            logger.info("location: " + requests.peek().getLocation() + " vms/ numrequests: "+ this.getPmSize() + "/" + requests.size() );
         }
-        // TODO: calculate workloads
-
 
         for(VirtualMachine vm: vms){
-            if(vm.getState() == State.IDLE)
-                results.addResult(vm.execute(requests.pop()));
-            vm.setState(State.IDLE);
+            if(requests.empty())
+                break;
+            if(vm.getState() == State.IDLE ) {
+                results.addRequest(vm.execute(requests.pop()));
+            }
         }
         if (!requests.empty())
             this.execute(requests);
