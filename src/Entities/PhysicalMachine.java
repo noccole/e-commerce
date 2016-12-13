@@ -23,7 +23,7 @@ public class PhysicalMachine {
     private double workloadrateCpu;            // in percent
     private double workloadrateMemory;
     private double workloadrateNetwork;
-
+    private Random r = new Random();
     private int idleStateEnergyConsumption;
     private final Logger logger = Logger.getLogger("physicalMachine");
 
@@ -87,25 +87,29 @@ public class PhysicalMachine {
 
 */
 
-        this.state = State.PROCESSING;
-        if(requests.size() > this.getPmSize()) {
-            logger.info("location: " + requests.peek().getLocation() + " vms/ numrequests: "+ this.getPmSize() + "/" + requests.size() );
-        }
-
-        for(VirtualMachine vm: vms){
-            if(requests.empty())
-                break;
-            if(vm.getState() == State.IDLE ) {
-                results.addRequest(vm.execute(requests.pop()));
+        if(r.nextBoolean()) {
+            this.state = State.PROCESSING;
+            if (requests.size() > this.getPmSize()) {
+                logger.info("location: " + requests.peek().getLocation() + " vms/ numrequests: " + this.getPmSize() + "/" + requests.size());
             }
-        }
-        if (!requests.empty())
-            this.execute(requests);
 
-        results.calculateStartingPoint();
-        results.calculateFailedRequests();
-        this.state = State.IDLE;
-        return results;
+            for (VirtualMachine vm : vms) {
+                if (requests.empty())
+                    break;
+                if (vm.getState() == State.IDLE) {
+                    results.addRequest(vm.execute(requests.pop()));
+                }
+            }
+            if (!requests.empty())
+                this.execute(requests);
+
+            results.calculateStartingPoint();
+            results.calculateFailedRequests();
+            this.state = State.IDLE;
+            return results;
+        }
+        else
+            return null;
 
     }
 
