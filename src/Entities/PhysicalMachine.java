@@ -62,7 +62,8 @@ public class PhysicalMachine {
         return new VirtualMachine(memoryVm, cpuVm, networkVm, pageDirtyingRate);
     }
 
-    public ResultList execute(Request request){
+    public ResultList execute(Stack<Request>  requests){
+        /*
         // TODO: Change to new process order
 
         this.state = State.PROCESSING;
@@ -71,7 +72,7 @@ public class PhysicalMachine {
         for(VirtualMachine vm: vms){
 
             if(vm.getState() == State.IDLE ) {
-                results.addRequest(vm.execute(request));   // TODO: versteh ich nicht
+                results.addRequest(vm.execute(request));
             }
         }
 
@@ -84,7 +85,8 @@ public class PhysicalMachine {
         this.state = State.IDLE;
         return results;
 
-        /*
+*/
+
         this.state = State.PROCESSING;
         if(requests.size() > this.getPmSize()) {
             logger.info("location: " + requests.peek().getLocation() + " vms/ numrequests: "+ this.getPmSize() + "/" + requests.size() );
@@ -104,7 +106,7 @@ public class PhysicalMachine {
         results.calculateFailedRequests();
         this.state = State.IDLE;
         return results;
-        */
+
     }
 
     public double getTotalEnergyUtilization(){

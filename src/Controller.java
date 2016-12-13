@@ -26,36 +26,10 @@ public class Controller {
         edges.add(new Edge(10, 12, Location.EAST));
         edges.add(new Edge(2, 3, Location.SOUTH));
         edges.add(new Edge(6, 6, Location.WEST));
-
-        edges.add(new Edge(100, 200, Location.NORTH));
-        edges.add(new Edge(100, 200, Location.EAST));
-        edges.add(new Edge(100, 200, Location.SOUTH));
-        edges.add(new Edge(100 ,200, Location.WEST));
-
-        edges.add(new Edge(10, 15, Location.NORTH));
-        edges.add(new Edge(10, 15, Location.EAST));
-        edges.add(new Edge(10, 15, Location.SOUTH));
-        edges.add(new Edge(10, 15, Location.WEST));
-
-        edges.add(new Edge(4, 12, Location.NORTH));
-        edges.add(new Edge(4, 12, Location.EAST));
-        edges.add(new Edge(4, 12, Location.SOUTH));
-        edges.add(new Edge(4, 12, Location.WEST));
-
-        edges.add(new Edge(20, 35, Location.NORTH));
-        edges.add(new Edge(20, 35, Location.EAST));
-        edges.add(new Edge(20, 35, Location.SOUTH));
-        edges.add(new Edge(20, 35, Location.WEST));
-
-        edges.add(new Edge(1, 8, Location.NORTH));
-        edges.add(new Edge(1, 8, Location.EAST));
-        edges.add(new Edge(1, 8, Location.SOUTH));
-        edges.add(new Edge(1, 8, Location.WEST));
-
-        edges.add(new Edge(7, 56, Location.NORTH));
-        edges.add(new Edge(7, 56, Location.EAST));
-        edges.add(new Edge(7, 56, Location.SOUTH));
-        edges.add(new Edge(7, 56, Location.WEST));
+        edges.add(new Edge(2, 6, Location.NORTH));
+        edges.add(new Edge(16, 18, Location.EAST));
+        edges.add(new Edge(7, 7, Location.SOUTH));
+        edges.add(new Edge(8, 8, Location.WEST));
 
         createWorkload(numRequests);
     }
@@ -63,13 +37,12 @@ public class Controller {
     public void createWorkload(int numRequests){
         requests = new Stack<Request>();
 
-        for(int i=0; i<100; i++){
+        for(int i=0; i<numRequests; i++){
             requests.push(createRequestWithUniformVariables());
         }
     }
     public void distributeWorkloadOnAllNodes(){
 
-        //TODO: Distribute workload with bfd heuristic
 
         Stack<Request> requestsNorth = new Stack<Request>();
         Stack<Request> requestsEast = new Stack<Request>();

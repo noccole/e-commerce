@@ -31,10 +31,9 @@ public class Edge {
             idleStateEnergyConsumption+= pm.getIdleStateEnergyConsumption();
             pms.add(pm);
         }
-
     }
 
-    public boolean distributeWorkload(Request request) {
+    public boolean distributeWorkload(Stack<Request> requests) {
 
         //init for checking slas
         //numRequests = requests.size();
@@ -42,7 +41,7 @@ public class Edge {
         results = new ArrayList<ResultList>();
         for(PhysicalMachine pm: pms){
             int numVms = pm.getPmSize();
-            results.add(pm.execute(request));
+            results.add(pm.execute(requests));
         }
 
         return checkSlas();
@@ -67,7 +66,6 @@ public class Edge {
         for(ResultList result : results){
             totalFailed += result.getFailedRequests();
         }
-
         //Performance: Maximum of 2 % failed tasks per fullfilled request
         if(totalFailed/numRequests < SLA_Performance){
             return true;
@@ -84,7 +82,6 @@ public class Edge {
         //Latency: Per 100 tasks maximum 0,5 seconds of processing time
         if(durationRequestTotal < SLA_Latency)
             return true;
-
         return false;
     }
 
