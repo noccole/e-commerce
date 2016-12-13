@@ -30,6 +30,10 @@ public class Controller {
         edges.add(new Edge(16, 18, Location.EAST));
         edges.add(new Edge(7, 7, Location.SOUTH));
         edges.add(new Edge(8, 8, Location.WEST));
+        edges.add(new Edge(5, 6, Location.NORTH));
+        edges.add(new Edge(8, 18, Location.EAST));
+        edges.add(new Edge(3, 7, Location.SOUTH));
+        edges.add(new Edge(9, 8, Location.WEST));
 
         createWorkload(numRequests);
     }
@@ -75,7 +79,10 @@ public class Controller {
                         }
                 }
             }
-            selectededge.distributeWorkload(req);
+            Stack<Request> reqs = new Stack<Request>();
+            reqs.push(req);
+            if(reqs.size() > 0)
+            System.out.println(selectededge.distributeWorkload(reqs));
         }
 
         for(Request req : requestsNorth) {
@@ -90,7 +97,10 @@ public class Controller {
                     }
                 }
             }
-            selectededge.distributeWorkload(req);
+            Stack<Request> reqs = new Stack<Request>();
+            reqs.push(req);
+            if(reqs.size() > 0)
+                System.out.println(selectededge.distributeWorkload(reqs));
         }
         for(Request req : requestsSouth) {
             double lowestEnergy = Integer.MAX_VALUE;
@@ -104,7 +114,10 @@ public class Controller {
                     }
                 }
             }
-            selectededge.distributeWorkload(req);
+            Stack<Request> reqs = new Stack<Request>();
+            reqs.push(req);
+            if(reqs.size() > 0)
+                System.out.println(selectededge.distributeWorkload(reqs));
         }
 
         for(Request req : requestsWest) {
@@ -119,7 +132,10 @@ public class Controller {
                     }
                 }
             }
-            selectededge.distributeWorkload(req);
+            Stack<Request> reqs = new Stack<Request>();
+            reqs.push(req);
+            if(reqs.size() > 0)
+                System.out.println(selectededge.distributeWorkload(reqs));
         }
 
 
