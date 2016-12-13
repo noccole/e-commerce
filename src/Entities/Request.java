@@ -19,7 +19,7 @@ public class Request {
         this.startTime = startTime;
         this.duration = duration;
         this.location = location;
-        this.ressources = ressources;
+        this.ressources = ressources;       //energy per request
     }
     public Request execute(){
 
