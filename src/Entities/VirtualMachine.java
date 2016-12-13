@@ -34,6 +34,7 @@ public class VirtualMachine {
         return result;
     }
 
+
     public State getState() {
         return state;
     }
