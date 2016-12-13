@@ -47,8 +47,10 @@ public class Edge {
             for (PhysicalMachine pm : pms) {
                 int numVms = pm.getPmSize();
                 results.add(pm.execute(requests));
+                if(results.get(0).getResults().size()== 0)
+                    //TODO: EXECUTE DISTRIBUTE WORKLOAD AGAIN BECAUSE OF EDGE FAILURE
+                    return  checkSlas();
             }
-
             return checkSlas();
 
     }

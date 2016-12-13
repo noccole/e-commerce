@@ -108,8 +108,10 @@ public class PhysicalMachine {
             this.state = State.IDLE;
             return results;
         }
-        else
-            return null;
+        else {
+            return results;
+        }
+
 
     }
 
