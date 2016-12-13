@@ -38,9 +38,9 @@ public class PhysicalMachine {
         energyMemory = 5;
         energyNetwork = 3;
         idleStateEnergyConsumption = 20;
-        workloadrateCpu = 0.5;                      //TODO: set workloadrates randomly (?)
-        workloadrateMemory = 0.4;                   //Math.random() generates double value between 0.0 and 1.0
-        workloadrateNetwork = 0.1;
+        workloadrateCpu = Math.random();//0.5;                      //TODO: set workloadrates randomly (?)
+        workloadrateMemory = Math.random();//0.4;                   //Math.random() generates double value between 0.0 and 1.0
+        workloadrateNetwork = Math.random();//0.1;
         state = State.NEW;
         results = new ResultList();
         createVms(numVms);
