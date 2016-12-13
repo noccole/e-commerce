@@ -23,7 +23,7 @@ public class PhysicalMachine {
     private double workloadrateCpu;            // in percent
     private double workloadrateMemory;
     private double workloadrateNetwork;
-
+    private Random r = new Random();
     private int idleStateEnergyConsumption;
     private final Logger logger = Logger.getLogger("physicalMachine");
 
@@ -38,9 +38,9 @@ public class PhysicalMachine {
         energyMemory = 5;
         energyNetwork = 3;
         idleStateEnergyConsumption = 20;
-        workloadrateCpu = 0.5;                      //TODO: set workloadrates randomly (?)
-        workloadrateMemory = 0.4;
-        workloadrateNetwork = 0.1;
+        workloadrateCpu = Math.random();//0.5;
+        workloadrateMemory = Math.random();//0.4;                   //Math.random() generates double value between 0.0 and 1.0
+        workloadrateNetwork = Math.random();//0.1;
         state = State.NEW;
         results = new ResultList();
         createVms(numVms);
@@ -58,30 +58,61 @@ public class PhysicalMachine {
         int networkVm = (int) Math.floor(r.nextGaussian()*20+(network/numVms));       // 100 MByte mean
 
         //depends linearly on the combination of the utilized memory, CPU and network bandwidth)
-        double pageDirtyingRate = (memoryVm/memory)+(cpuVm/cpu)+(networkVm/network);        //TODO: check calculation of rate
+        double pageDirtyingRate = (memoryVm/memory)+(cpuVm/cpu)+(networkVm/network);
         return new VirtualMachine(memoryVm, cpuVm, networkVm, pageDirtyingRate);
     }
 
-    public ResultList execute(Stack<Request> requests){
+    public ResultList execute(Stack<Request>  requests){
+        /*
+        // TODO: Change to new process order
+
         this.state = State.PROCESSING;
-        if(requests.size() > this.getPmSize()) {
-            logger.info("location: " + requests.peek().getLocation() + " vms/ numrequests: "+ this.getPmSize() + "/" + requests.size() );
-        }
+
 
         for(VirtualMachine vm: vms){
-            if(requests.empty())
-                break;
+
             if(vm.getState() == State.IDLE ) {
-                results.addRequest(vm.execute(requests.pop()));
+                results.addRequest(vm.execute(request));
             }
         }
-        if (!requests.empty())
-            this.execute(requests);
+
+        if(request != null){
+            this.execute(request);
+        }
 
         results.calculateStartingPoint();
         results.calculateFailedRequests();
         this.state = State.IDLE;
         return results;
+
+*/
+
+        if(r.nextBoolean()) {
+            this.state = State.PROCESSING;
+            if (requests.size() > this.getPmSize()) {
+                logger.info("location: " + requests.peek().getLocation() + " vms/ numrequests: " + this.getPmSize() + "/" + requests.size());
+            }
+
+            for (VirtualMachine vm : vms) {
+                if (requests.empty())
+                    break;
+                if (vm.getState() == State.IDLE) {
+                    results.addRequest(vm.execute(requests.pop()));
+                }
+            }
+            if (!requests.empty())
+                this.execute(requests);
+
+            results.calculateStartingPoint();
+            results.calculateFailedRequests();
+            this.state = State.IDLE;
+            return results;
+        }
+        else {
+            return results;
+        }
+
+
     }
 
     public double getTotalEnergyUtilization(){

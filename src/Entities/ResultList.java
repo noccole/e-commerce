@@ -20,20 +20,25 @@ public class ResultList {
 
     public void calculateStartingPoint(){
         int i=1;
-        for (Request request : results){
-            if(!request.getSuccess()) {       //first Failure
-                startingPoint = i;
-                return;
+            for (Request request : results) {
+                if (!request.getSuccess()) {       //first Failure
+                    startingPoint = i;
+                    return;
+                }
+                i++;
             }
-            i++;
         }
-    }
+
     public void calculateFailedRequests(){
         for (Request request : results){
             if(!request.getSuccess())
                 numFailedRequests++;
         }
     }
+    public List<Request> getResults(){
+        return results;
+    }
+
     public int getFailedRequests(){
         return numFailedRequests;
     }
