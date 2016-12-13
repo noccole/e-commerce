@@ -27,6 +27,36 @@ public class Controller {
         edges.add(new Edge(2, 3, Location.SOUTH));
         edges.add(new Edge(6, 6, Location.WEST));
 
+        edges.add(new Edge(100, 200, Location.NORTH));
+        edges.add(new Edge(100, 200, Location.EAST));
+        edges.add(new Edge(100, 200, Location.SOUTH));
+        edges.add(new Edge(100 ,200, Location.WEST));
+
+        edges.add(new Edge(10, 15, Location.NORTH));
+        edges.add(new Edge(10, 15, Location.EAST));
+        edges.add(new Edge(10, 15, Location.SOUTH));
+        edges.add(new Edge(10, 15, Location.WEST));
+
+        edges.add(new Edge(4, 12, Location.NORTH));
+        edges.add(new Edge(4, 12, Location.EAST));
+        edges.add(new Edge(4, 12, Location.SOUTH));
+        edges.add(new Edge(4, 12, Location.WEST));
+
+        edges.add(new Edge(20, 35, Location.NORTH));
+        edges.add(new Edge(20, 35, Location.EAST));
+        edges.add(new Edge(20, 35, Location.SOUTH));
+        edges.add(new Edge(20, 35, Location.WEST));
+
+        edges.add(new Edge(1, 8, Location.NORTH));
+        edges.add(new Edge(1, 8, Location.EAST));
+        edges.add(new Edge(1, 8, Location.SOUTH));
+        edges.add(new Edge(1, 8, Location.WEST));
+
+        edges.add(new Edge(7, 56, Location.NORTH));
+        edges.add(new Edge(7, 56, Location.EAST));
+        edges.add(new Edge(7, 56, Location.SOUTH));
+        edges.add(new Edge(7, 56, Location.WEST));
+
         createWorkload(numRequests);
     }
 
@@ -57,6 +87,9 @@ public class Controller {
                     requestsWest.push(request);
                 }
         }
+
+
+
         for(Edge edge : edges){
             Location location = edge.getLocation();
             if(location == Location.NORTH) {
@@ -77,12 +110,12 @@ public class Controller {
     public Request createRequestWithUniformVariables(){
         int startTime = (int)(Math.random()*1481213984);                 //date of 8.12.2016 as mean value
         int duration = (int)(Math.random()*7);                              // 5 is max for sla
-
+        int ressources = (int)(Math.random()*2000+1);                   // random cpu size for workload per request
         List<Location> VALUES = Collections.unmodifiableList(Arrays.asList(Location.values()));
 
         Location randomLocation = VALUES.get(r.nextInt(VALUES.size()));
 
-        Request request = new Request(startTime, duration, randomLocation);
+        Request request = new Request(startTime, duration, randomLocation,ressources);
         return request;
     }
 
