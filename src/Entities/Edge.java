@@ -56,7 +56,7 @@ public class Edge {
         return idleStateEnergyConsumption + totalEnergyUtilization;
     }
     private boolean checkSlas(){
-        if(checkPerformance() && checkLatency() && checkRecovery()){
+        if(checkPerformance() && checkLatency() && checkRecovery() && checkAvailabilty()){
             return true;
         }
         return false;
@@ -105,7 +105,7 @@ public class Edge {
 
     private boolean checkAvailabilty(){
         int availability = 0;
-        //availability = uptime/(uptime+downtime);          TODO: woher bekommen wir dieuptime und downtime
+        //availability = uptime/(uptime+downtime);          TODO: woher bekommen wir die uptime und downtime
 
         if(availability >= 0.98)
             return true;
