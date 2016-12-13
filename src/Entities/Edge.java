@@ -2,6 +2,7 @@ package Entities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Stack;
 
 /**
@@ -10,9 +11,9 @@ import java.util.Stack;
 public class Edge {
     private List<PhysicalMachine> pms;
     private Location location;
-    private static double SLA_Performance = 0.02;
-    private static double SLA_Latency = 0.5;
-    private static double SLA_Recovery = 0.2;
+    private static double SLA_Performance = 0.5;
+    private static double SLA_Latency = 0.8;
+    private static double SLA_Recovery = 0.9;
     private int numRequests=0;               //fill with num requests
     private int numFailedRequests=0;		//fill with num failed requests
     List<ResultList> results;
@@ -20,6 +21,7 @@ public class Edge {
     private long durationRequestTotal=0;
     private long durationRecovery=0;		//Durationtime of recovery
     private State state;
+    private Random r = new Random();
     private int idleStateEnergyConsumption=0;
 
     public Edge(int numPms, int numVms, Location location) {
@@ -36,15 +38,17 @@ public class Edge {
     public boolean distributeWorkload(Stack<Request> requests) {
 
         //init for checking slas
-        //numRequests = requests.size();
 
-        results = new ArrayList<ResultList>();
-        for(PhysicalMachine pm: pms){
-            int numVms = pm.getPmSize();
-            results.add(pm.execute(requests));
-        }
+            numRequests = requests.size();
 
-        return checkSlas();
+            results = new ArrayList<ResultList>();
+            for (PhysicalMachine pm : pms) {
+                int numVms = pm.getPmSize();
+                results.add(pm.execute(requests));
+            }
+
+            return checkSlas();
+
     }
     public double getTotalEnergyUtilization(){
         int totalEnergyUtilization = 0;
@@ -54,7 +58,7 @@ public class Edge {
         return idleStateEnergyConsumption + totalEnergyUtilization;
     }
     private boolean checkSlas(){
-        if(checkPerformance() && checkLatency() && checkRecovery() && checkAvailabilty()){
+        if(checkPerformance() && checkLatency() & checkRecovery() & !checkAvailabilty()){  //TODO: Availability
             return true;
         }
         return false;
