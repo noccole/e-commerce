@@ -30,20 +30,19 @@ public class Edge {
             PhysicalMachine pm = new PhysicalMachine(numVms);
             idleStateEnergyConsumption+= pm.getIdleStateEnergyConsumption();
             pms.add(pm);
-
         }
 
     }
 
-    public boolean distributeWorkload(Stack<Request> requests) {
+    public boolean distributeWorkload(Request request) {
 
         //init for checking slas
-        numRequests = requests.size();
+        //numRequests = requests.size();
 
         results = new ArrayList<ResultList>();
         for(PhysicalMachine pm: pms){
             int numVms = pm.getPmSize();
-            results.add(pm.execute(requests));
+            results.add(pm.execute(request));
         }
 
         return checkSlas();

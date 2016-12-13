@@ -38,7 +38,7 @@ public class PhysicalMachine {
         energyMemory = 5;
         energyNetwork = 3;
         idleStateEnergyConsumption = 20;
-        workloadrateCpu = Math.random();//0.5;                      //TODO: set workloadrates randomly (?)
+        workloadrateCpu = Math.random();//0.5;
         workloadrateMemory = Math.random();//0.4;                   //Math.random() generates double value between 0.0 and 1.0
         workloadrateNetwork = Math.random();//0.1;
         state = State.NEW;
@@ -62,7 +62,29 @@ public class PhysicalMachine {
         return new VirtualMachine(memoryVm, cpuVm, networkVm, pageDirtyingRate);
     }
 
-    public ResultList execute(Stack<Request> requests){
+    public ResultList execute(Request request){
+        // TODO: Change to new process order
+
+        this.state = State.PROCESSING;
+
+
+        for(VirtualMachine vm: vms){
+
+            if(vm.getState() == State.IDLE ) {
+                results.addRequest(vm.execute(request));   // TODO: versteh ich nicht
+            }
+        }
+
+        if(request != null){
+            this.execute(request);
+        }
+
+        results.calculateStartingPoint();
+        results.calculateFailedRequests();
+        this.state = State.IDLE;
+        return results;
+
+        /*
         this.state = State.PROCESSING;
         if(requests.size() > this.getPmSize()) {
             logger.info("location: " + requests.peek().getLocation() + " vms/ numrequests: "+ this.getPmSize() + "/" + requests.size() );
@@ -82,6 +104,7 @@ public class PhysicalMachine {
         results.calculateFailedRequests();
         this.state = State.IDLE;
         return results;
+        */
     }
 
     public double getTotalEnergyUtilization(){

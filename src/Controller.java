@@ -88,21 +88,68 @@ public class Controller {
                 }
         }
 
+        // REQUESTS DISTRIBUTION TO BEST EDGE IN LOCATION
 
-
-        for(Edge edge : edges){
-            Location location = edge.getLocation();
-            if(location == Location.NORTH) {
-                edge.distributeWorkload(requestsNorth);
-            }else if(location == Location.EAST){
-                edge.distributeWorkload(requestsEast);
-            }else if(location == Location.SOUTH){
-                edge.distributeWorkload(requestsSouth);
-            }else if(location == Location.WEST){
-                edge.distributeWorkload(requestsWest);
+        for(Request req : requestsEast) {
+            double lowestEnergy = Integer.MAX_VALUE;
+            Edge selectededge = null;
+            for (Edge edge : edges) {
+                Location location = edge.getLocation();
+                if (location == Location.EAST) {
+                        if(edge.getTotalEnergyUtilization() < lowestEnergy) {
+                            lowestEnergy = edge.getTotalEnergyUtilization();
+                            selectededge = edge;
+                        }
+                }
             }
-
+            selectededge.distributeWorkload(req);
         }
+
+        for(Request req : requestsNorth) {
+            double lowestEnergy = Integer.MAX_VALUE;
+            Edge selectededge = null;
+            for (Edge edge : edges) {
+                Location location = edge.getLocation();
+                if (location == Location.NORTH) {
+                    if(edge.getTotalEnergyUtilization() < lowestEnergy) {
+                        lowestEnergy = edge.getTotalEnergyUtilization();
+                        selectededge = edge;
+                    }
+                }
+            }
+            selectededge.distributeWorkload(req);
+        }
+        for(Request req : requestsSouth) {
+            double lowestEnergy = Integer.MAX_VALUE;
+            Edge selectededge = null;
+            for (Edge edge : edges) {
+                Location location = edge.getLocation();
+                if (location == Location.SOUTH) {
+                    if(edge.getTotalEnergyUtilization() < lowestEnergy) {
+                        lowestEnergy = edge.getTotalEnergyUtilization();
+                        selectededge = edge;
+                    }
+                }
+            }
+            selectededge.distributeWorkload(req);
+        }
+
+        for(Request req : requestsWest) {
+            double lowestEnergy = Integer.MAX_VALUE;
+            Edge selectededge = null;
+            for (Edge edge : edges) {
+                Location location = edge.getLocation();
+                if (location == Location.WEST) {
+                    if(edge.getTotalEnergyUtilization() < lowestEnergy) {
+                        lowestEnergy = edge.getTotalEnergyUtilization();
+                        selectededge = edge;
+                    }
+                }
+            }
+            selectededge.distributeWorkload(req);
+        }
+
+
 
     }
 
