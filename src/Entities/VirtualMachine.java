@@ -11,7 +11,7 @@ public class VirtualMachine {
     //all sizes in MB bzw. MB/s
     private int memory;
     private int cpu;
-    private int network;             //TODO: depends on the consumed memory (does not depend on memory yet)
+    private int network;             //TODO: depends on the consumed memory! (does not depend on memory yet)
     private double pageDirtyingRate;
 
     private Random r;
