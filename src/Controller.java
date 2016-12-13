@@ -86,7 +86,6 @@ public class Controller {
             Stack<Request> reqs = new Stack<Request>();
             reqs.push(req);
             if(reqs.size() > 0){
-                //TODO: check ob sinnvoll
                 List<ResultList> edgeResult = selectededge.distributeWorkload(reqs);
                 if(selectededge.getState() == State.FAILED){
                     retryRequestsOnOtherEdge.addAll(selectededge.getAllRequests());
