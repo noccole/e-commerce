@@ -58,7 +58,7 @@ public class PhysicalMachine {
         int networkVm = (int) Math.floor(r.nextGaussian()*20+(network/numVms));       // 100 MByte mean
 
         //depends linearly on the combination of the utilized memory, CPU and network bandwidth)
-        double pageDirtyingRate = (memoryVm/memory)+(cpuVm/cpu)+(networkVm/network);        //TODO: check calculation of rate -> is OK
+        double pageDirtyingRate = (memoryVm/memory)+(cpuVm/cpu)+(networkVm/network);
         return new VirtualMachine(memoryVm, cpuVm, networkVm, pageDirtyingRate);
     }
 
