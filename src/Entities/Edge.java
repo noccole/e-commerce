@@ -23,6 +23,8 @@ public class Edge {
     private State state;
     private Random r = new Random();
     private int idleStateEnergyConsumption=0;
+    private float uptime = System.currentTimeMillis()/1000F;
+    private long downtime = 0;
 
     public Edge(int numPms, int numVms, Location location) {
         state = State.NEW;
@@ -58,7 +60,7 @@ public class Edge {
         return idleStateEnergyConsumption + totalEnergyUtilization;
     }
     private boolean checkSlas(){
-        if(checkPerformance() && checkLatency() & checkRecovery() & !checkAvailabilty()){  //TODO: Availability
+        if(checkPerformance() && checkLatency() & checkRecovery() & checkAvailabilty()){
             return true;
         }
         return false;
@@ -69,6 +71,7 @@ public class Edge {
 
         for(ResultList result : results){
             totalFailed += result.getFailedRequests();
+            this.downtime++;
         }
         //Performance: Maximum of 2 % failed tasks per fullfilled request
         if(totalFailed/numRequests < SLA_Performance){
@@ -104,8 +107,9 @@ public class Edge {
     }
 
     private boolean checkAvailabilty(){
-        int availability = 0;
-        //availability = uptime/(uptime+downtime);          TODO: woher bekommen wir die uptime und downtime?
+        float availability = 0;
+
+        availability = this.uptime/(this.uptime+this.downtime);
 
         if(availability >= 0.98)
             return true;
