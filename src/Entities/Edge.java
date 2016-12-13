@@ -20,16 +20,18 @@ public class Edge {
     private long durationRequest=0;			//Durationtime of a request
     private long durationRequestTotal=0;
     private long durationRecovery=0;		//Durationtime of recovery
+    private Stack<Request> allRequests;
     private State state;
-    private Random r = new Random();
     private int idleStateEnergyConsumption=0;
     private float uptime = System.currentTimeMillis()/1000F;
     private long downtime = 0;
+    private Random r = new Random();
 
     public Edge(int numPms, int numVms, Location location) {
         state = State.NEW;
         pms =  new ArrayList<PhysicalMachine>();
         this.location = location;
+        this.allRequests = new Stack<Request>();
         for (int i =0; i<numPms; i++){
             PhysicalMachine pm = new PhysicalMachine(numVms);
             idleStateEnergyConsumption+= pm.getIdleStateEnergyConsumption();
@@ -37,22 +39,28 @@ public class Edge {
         }
     }
 
-    public boolean distributeWorkload(Stack<Request> requests) {
-
+    public List<ResultList>  distributeWorkload(Stack<Request> requests) {
+        allRequests.addAll(requests);
         //init for checking slas
 
             numRequests = requests.size();
 
             results = new ArrayList<ResultList>();
             for (PhysicalMachine pm : pms) {
-                int numVms = pm.getPmSize();
-                results.add(pm.execute(requests));
-                if(results.get(0).getResults().size()== 0)
-                    //TODO: EXECUTE DISTRIBUTE WORKLOAD AGAIN BECAUSE OF EDGE FAILURE
-                    return  checkSlas();
+                if(pm.getState() != State.FAILED) {
+                    results.add(pm.execute(requests));
+                    if (results.get(0).getResults().size() == 0)          //leeres resultset -> physical machine has failed
+                        this.distributeWorkload(requests);
+                }else {
+                    pm.setState(State.IDLE);                                //set to idle after restarting pm
+                }
             }
-            return checkSlas();
-
+            if(r.nextBoolean()) {
+                this.state = State.IDLE;
+            }else {
+                this.state = State.FAILED;
+            }
+            return results;
     }
     public double getTotalEnergyUtilization(){
         int totalEnergyUtilization = 0;
@@ -127,6 +135,20 @@ public class Edge {
     }
     public Location getLocation() {
         return location;
+    }
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
+    }
+    public Stack<Request> getAllRequests() {
+        return allRequests;
+    }
+
+    public void setAllRequests(Stack<Request> allRequests) {
+        this.allRequests = allRequests;
     }
 }
 

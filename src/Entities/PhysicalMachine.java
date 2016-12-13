@@ -63,30 +63,6 @@ public class PhysicalMachine {
     }
 
     public ResultList execute(Stack<Request>  requests){
-        /*
-        // TODO: Change to new process order
-
-        this.state = State.PROCESSING;
-
-
-        for(VirtualMachine vm: vms){
-
-            if(vm.getState() == State.IDLE ) {
-                results.addRequest(vm.execute(request));
-            }
-        }
-
-        if(request != null){
-            this.execute(request);
-        }
-
-        results.calculateStartingPoint();
-        results.calculateFailedRequests();
-        this.state = State.IDLE;
-        return results;
-
-*/
-
         if(r.nextBoolean()) {
             this.state = State.PROCESSING;
             if (requests.size() > this.getPmSize()) {
@@ -109,6 +85,7 @@ public class PhysicalMachine {
             return results;
         }
         else {
+            this.state = State.FAILED;
             return results;
         }
 
@@ -126,5 +103,12 @@ public class PhysicalMachine {
 
     public int getIdleStateEnergyConsumption() {
         return idleStateEnergyConsumption;
+    }
+    public State getState() {
+        return state;
+    }
+
+    public void setState(State state) {
+        this.state = state;
     }
 }

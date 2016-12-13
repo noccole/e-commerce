@@ -1,7 +1,4 @@
-import Entities.Edge;
-import Entities.Location;
-import Entities.PhysicalMachine;
-import Entities.Request;
+import Entities.*;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -18,6 +15,7 @@ public class Controller {
 
     private List<Edge> edges;
     private Stack<Request> requests;
+    private List<ResultList> results;
     private Random r = new Random();
 
     public Controller(int numRequests){
@@ -46,8 +44,6 @@ public class Controller {
         }
     }
     public void distributeWorkloadOnAllNodes(){
-
-
         Stack<Request> requestsNorth = new Stack<Request>();
         Stack<Request> requestsEast = new Stack<Request>();
         Stack<Request> requestsSouth = new Stack<Request>();
@@ -64,82 +60,42 @@ public class Controller {
                     requestsWest.push(request);
                 }
         }
+        requests = new Stack<Request>();
+        requests.addAll(distributeWorkloadOnAllNodesForEachLocation(requestsNorth, Location.NORTH));
+        requests.addAll(distributeWorkloadOnAllNodesForEachLocation(requestsEast, Location.EAST));
+        requests.addAll(distributeWorkloadOnAllNodesForEachLocation(requestsSouth, Location.SOUTH));
+        requests.addAll(distributeWorkloadOnAllNodesForEachLocation(requestsWest, Location.WEST));
+    }
 
-        // REQUESTS DISTRIBUTION TO BEST EDGE IN LOCATION
-
-        for(Request req : requestsEast) {
+    public Stack<Request> distributeWorkloadOnAllNodesForEachLocation(Stack<Request> requestsLocation, Location location){
+        Stack<Request> retryRequestsOnOtherEdge = new Stack<Request>();
+        for(Request req : requestsLocation) {
             double lowestEnergy = Integer.MAX_VALUE;
-            Edge selectededge = null;
+            Edge selectededge = edges.get(0);
             for (Edge edge : edges) {
-                Location location = edge.getLocation();
-                if (location == Location.EAST) {
-                        if(edge.getTotalEnergyUtilization() < lowestEnergy) {
-                            lowestEnergy = edge.getTotalEnergyUtilization();
-                            selectededge = edge;
-                        }
-                }
-            }
-            Stack<Request> reqs = new Stack<Request>();
-            reqs.push(req);
-            if(reqs.size() > 0)
-            System.out.println(selectededge.distributeWorkload(reqs));
-        }
-
-        for(Request req : requestsNorth) {
-            double lowestEnergy = Integer.MAX_VALUE;
-            Edge selectededge = null;
-            for (Edge edge : edges) {
-                Location location = edge.getLocation();
-                if (location == Location.NORTH) {
-                    if(edge.getTotalEnergyUtilization() < lowestEnergy) {
+                Location edgeLocation = edge.getLocation();
+                if (edgeLocation == location) {
+                    if(edge.getTotalEnergyUtilization() < lowestEnergy && edge.getState() != State.FAILED) {
                         lowestEnergy = edge.getTotalEnergyUtilization();
                         selectededge = edge;
+                    }else{
+                        selectededge.setState(State.IDLE);
                     }
                 }
             }
             Stack<Request> reqs = new Stack<Request>();
             reqs.push(req);
-            if(reqs.size() > 0)
-                System.out.println(selectededge.distributeWorkload(reqs));
-        }
-        for(Request req : requestsSouth) {
-            double lowestEnergy = Integer.MAX_VALUE;
-            Edge selectededge = null;
-            for (Edge edge : edges) {
-                Location location = edge.getLocation();
-                if (location == Location.SOUTH) {
-                    if(edge.getTotalEnergyUtilization() < lowestEnergy) {
-                        lowestEnergy = edge.getTotalEnergyUtilization();
-                        selectededge = edge;
-                    }
+            if(reqs.size() > 0){
+                //TODO: check ob sinnvoll
+                List<ResultList> edgeResult = selectededge.distributeWorkload(reqs);
+                if(selectededge.getState() == State.FAILED){
+                    retryRequestsOnOtherEdge.addAll(selectededge.getAllRequests());
+                    this.distributeWorkloadOnAllNodes();
                 }
+                //System.out.println(selectededge.distributeWorkload(reqs));
             }
-            Stack<Request> reqs = new Stack<Request>();
-            reqs.push(req);
-            if(reqs.size() > 0)
-                System.out.println(selectededge.distributeWorkload(reqs));
         }
-
-        for(Request req : requestsWest) {
-            double lowestEnergy = Integer.MAX_VALUE;
-            Edge selectededge = null;
-            for (Edge edge : edges) {
-                Location location = edge.getLocation();
-                if (location == Location.WEST) {
-                    if(edge.getTotalEnergyUtilization() < lowestEnergy) {
-                        lowestEnergy = edge.getTotalEnergyUtilization();
-                        selectededge = edge;
-                    }
-                }
-            }
-            Stack<Request> reqs = new Stack<Request>();
-            reqs.push(req);
-            if(reqs.size() > 0)
-                System.out.println(selectededge.distributeWorkload(reqs));
-        }
-
-
-
+        return retryRequestsOnOtherEdge;
     }
 
     //method for uniformly distributing the request variables: memory, cpu, startTime and duration
