@@ -23,6 +23,7 @@ public class Edge {
     private Stack<Request> allRequests;
     private State state;
     private int idleStateEnergyConsumption=0;
+
     private float uptime = System.currentTimeMillis()/1000F;
     private long downtime = 0;
     private Random r = new Random();

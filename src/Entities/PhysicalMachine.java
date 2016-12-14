@@ -88,8 +88,6 @@ public class PhysicalMachine {
             this.state = State.FAILED;
             return results;
         }
-
-
     }
 
     public double getTotalEnergyUtilization(){
