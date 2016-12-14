@@ -106,8 +106,8 @@ public class Controller {
         List<ResultList> edgeResult = new ArrayList<ResultList>();
         edgeResult = selectedEdge.distributeWorkload(request);
 
-        if(edgeResult == null ) {            //Edge fails, retry all requests on other edge
-            List<Request> retryRequestsOnOtherEdge = selectedEdge.getAllRequests();
+        if(edgeResult == null ) {            //Edge fails, retry the request on other edge
+            List<Request> retryRequestsOnOtherEdge = selectedEdge.getAllRequests();     //Here ALL requests of edge are retried, not only for starting point
             Location location = selectedEdge.getLocation();
             Stack<Request> requestsLocation = new Stack<Request>();
             if (location == Location.NORTH) {
@@ -122,8 +122,10 @@ public class Controller {
             selectedEdge.restartEdge();              //set edge after failure to idle for next run
             requestsLocation.addAll(retryRequestsOnOtherEdge);
             findBestEdgeAndDistributeWorkload(requestsLocation, location);
+            return;
         }else{                              //Edge does not fail
             results.addAll(edgeResult);
+            return;
         }
 
     }
