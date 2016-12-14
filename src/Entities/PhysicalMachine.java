@@ -3,7 +3,6 @@ package Entities;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Stack;
 import java.util.logging.Logger;
 
 /**
@@ -61,32 +60,30 @@ public class PhysicalMachine {
         double pageDirtyingRate = (memoryVm/memory)+(cpuVm/cpu)+(networkVm/network);
         return new VirtualMachine(memoryVm, cpuVm, networkVm, pageDirtyingRate);
     }
-
-    public ResultList execute(Stack<Request>  requests){
-        if(r.nextBoolean()) {
-            this.state = State.PROCESSING;
-            if (requests.size() > this.getPmSize()) {
-                logger.info("location: " + requests.peek().getLocation() + " vms/ numrequests: " + this.getPmSize() + "/" + requests.size());
-            }
-
-            for (VirtualMachine vm : vms) {
-                if (requests.empty())
-                    break;
-                if (vm.getState() == State.IDLE) {
-                    results.addRequest(vm.execute(requests.pop()));
-                }
-            }
-            if (!requests.empty())
-                this.execute(requests);
-
-            results.calculateStartingPoint();
-            results.calculateFailedRequests();
-            this.state = State.IDLE;
+    public ResultList distributeWorkload(Request request){
+        if(r.nextBoolean()) {           //let fail pm randomly
+            this.execute(request);
             return results;
+        }else{
+            this.failPm();
+            return null;
         }
-        else {
-            this.state = State.FAILED;
-            return results;
+
+    }
+    private void execute(Request request){
+        this.state = State.IDLE;
+        for (VirtualMachine vm : vms) {
+            if (vm.getState() != State.FAILED) {
+                Request resultRequest = vm.execute(request);
+                if(resultRequest != null) {
+                    results.addRequest(resultRequest);              //write all Pm Results to results;
+                }else {                                         //vm fails
+                    this.execute(resultRequest);         //distribute to other vm
+                    return;
+                }
+            }else{
+                vm.restartVm();
+            }
         }
     }
 
@@ -106,7 +103,10 @@ public class PhysicalMachine {
         return state;
     }
 
-    public void setState(State state) {
-        this.state = state;
+    public void restartPm(){
+        this.state = State.IDLE;
+    }
+    public void failPm(){
+        this.state = State.FAILED;
     }
 }

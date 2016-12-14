@@ -23,20 +23,28 @@ public class VirtualMachine {
             this.pageDirtyingRate = pageDirtyingRate;
     }
 
-    public Request execute(Request request){        //add param request
-        state = State.PROCESSING;
-        Request result = request.execute();
-        if(request.getSuccess())
-            state = State.IDLE;
-        else{
-            this.execute(request);  //if request has failed, try again!
+    public Request execute(Request request){
+        if(r.nextBoolean()) {                   //check if vm fails
+            Request result = request.execute();
+            if(!request.getSuccess())              //check if request failed
+                return this.execute(request);  //if request has failed, try again!
+            else{
+                return result;
+            }
+        }else{
+            this.failVm();
+            return null;
         }
-        return result;
     }
-
 
     public State getState() {
         return state;
+    }
+    public void restartVm(){
+        this.state = State.IDLE;
+    }
+    public void failVm(){
+        this.state = State.FAILED;
     }
 
 

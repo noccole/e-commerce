@@ -45,4 +45,8 @@ public class ResultList {
     public int getStartingPoint(){
         return startingPoint;
     }
+
+    public int getNumResults(){
+        return results.size();
+    }
 }

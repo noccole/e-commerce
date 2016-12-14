@@ -15,14 +15,13 @@ public class Request {
     private Random r = new Random();
 
     public Request(int startTime, int duration, Location location, int ressources){
-        state = State.NEW;
+        this.state = State.IDLE;
         this.startTime = startTime;
         this.duration = duration;
         this.location = location;
         this.ressources = ressources;       //energy per request
     }
     public Request execute(){
-
         if(r.nextBoolean())
             state= State.SUCCESS;
         else
