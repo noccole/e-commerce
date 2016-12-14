@@ -18,10 +18,11 @@ public class Edge {
     private Random r = new Random();
 
     public Edge(int numPms, int numVms, Location location) {
-        state = State.IDLE;
-        pms =  new ArrayList<PhysicalMachine>();
+        this.state = State.IDLE;
+        this.pms =  new ArrayList<PhysicalMachine>();
         this.location = location;
         this.results = new ArrayList<ResultList>();
+        this.allRequests = new Stack<Request>();
         for (int i =0; i<numPms; i++){
             PhysicalMachine pm = new PhysicalMachine(numVms);
             idleStateEnergyConsumption+= pm.getIdleStateEnergyConsumption();

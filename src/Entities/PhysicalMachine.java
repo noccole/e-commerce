@@ -74,11 +74,11 @@ public class PhysicalMachine {
         this.state = State.IDLE;
         for (VirtualMachine vm : vms) {
             if (vm.getState() != State.FAILED) {
-                Request resultRequest = vm.execute(request);
+                Request resultRequest = vm.distributeWorkload(request);
                 if(resultRequest != null) {
                     results.addRequest(resultRequest);              //write all Pm Results to results;
                 }else {                                         //vm fails
-                    this.execute(resultRequest);         //distribute to other vm
+                    this.execute(request);         //distribute to other vm
                     return;
                 }
             }else{
