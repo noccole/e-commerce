@@ -14,11 +14,11 @@ import java.util.*;
 public class Controller {
 
     private List<Edge> edges;
-    private Stack<Request> initialRequests;
-    private Stack<Request> requestsNorth;
-    private Stack<Request> requestsEast;
-    private Stack<Request> requestsSouth;
-    private Stack<Request> requestsWest;
+    private HashSet<Request> initialRequests;
+    private HashSet<Request> requestsNorth;
+    private HashSet<Request> requestsEast;
+    private HashSet<Request> requestsSouth;
+    private HashSet<Request> requestsWest;
     private List<ResultList> results;
     private Random r = new Random();
     private static double SLA_Performance = 0.5;
@@ -45,71 +45,71 @@ public class Controller {
         edges.add(new Edge(3, 7, Location.SOUTH));
         edges.add(new Edge(9, 8, Location.WEST));
         results = new ArrayList<ResultList>();
-        requestsNorth= new Stack<Request>();
-        requestsEast = new Stack<Request>();
-        requestsSouth = new Stack<Request>();
-        requestsWest = new Stack<Request>();
+        requestsNorth= new HashSet<Request>();
+        requestsEast = new HashSet<Request>();
+        requestsSouth = new HashSet<Request>();
+        requestsWest = new HashSet<Request>();
         createWorkload(numRequests);
     }
 
     public void createWorkload(int numRequests){
-        initialRequests = new Stack<Request>();
+        initialRequests = new HashSet<Request>();
 
         for(int i=0; i<numRequests; i++){
-            initialRequests.push(createRequestWithUniformVariables());
+            initialRequests.add(createRequestWithUniformVariables());
         }
     }
-    public void distributeWorkloadOnAllNodes(boolean firstDistribution){
-
-        if (firstDistribution) {
-
-            for (Request request : initialRequests) {
-                Location location = request.getLocation();
-                if (location == Location.NORTH) {
-                    requestsNorth.push(request);
-                } else if (location == Location.EAST) {
-                    requestsEast.push(request);
-                } else if (location == Location.SOUTH) {
-                    requestsSouth.push(request);
-                } else if (location == Location.WEST) {
-                    requestsWest.push(request);
-                }
+    public void initialWorkloadDistribution(){
+        for (Request request : initialRequests) {
+            Location location = request.getLocation();
+            if (location == Location.NORTH) {
+                requestsNorth.add(request);
+            } else if (location == Location.EAST) {
+                requestsEast.add(request);
+            } else if (location == Location.SOUTH) {
+                requestsSouth.add(request);
+            } else if (location == Location.WEST) {
+                requestsWest.add(request);
             }
         }
+
         findBestEdgeAndDistributeWorkload(requestsNorth, Location.NORTH);
         findBestEdgeAndDistributeWorkload(requestsEast, Location.EAST);
         findBestEdgeAndDistributeWorkload(requestsSouth, Location.SOUTH);
         findBestEdgeAndDistributeWorkload(requestsWest, Location.WEST);
     }
 
-    public void findBestEdgeAndDistributeWorkload(Stack<Request> requestsLocation, Location location){
-        Stack<Request> retryRequestsOnOtherEdge;
+    public void findBestEdgeAndDistributeWorkload(HashSet<Request> requestsLocation, Location location){
         for(Request req : requestsLocation) {
-            double lowestEnergy = Integer.MAX_VALUE;
-            Edge selectedEdge = edges.get(0);
-            for (Edge edge : edges) {
-                Location edgeLocation = edge.getLocation();
-                if (edgeLocation == location) {
-                    if(edge.getTotalEnergyUtilization() < lowestEnergy && edge.getState() != State.FAILED) {
-                        lowestEnergy = edge.getTotalEnergyUtilization();
-                        selectedEdge = edge;
-                    }else{
-                        selectedEdge.restartEdge();
-                    }
-                }
-            }
+            Edge selectedEdge = selectPerfectEdge(req, location);
             this.execute(selectedEdge, req);
-
         }
     }
-    private void execute(Edge selectedEdge, Request request ){
+    private Edge selectPerfectEdge(Request request, Location location){
+        double lowestEnergy = Integer.MAX_VALUE;
+        Edge selectedEdge = edges.get(0);
+        for (Edge edge : edges) {
+            Location edgeLocation = edge.getLocation();
+            if (edgeLocation == location) {
+                if(edge.getTotalEnergyUtilization() < lowestEnergy && edge.getState() != State.FAILED) {
+                    lowestEnergy = edge.getTotalEnergyUtilization();
+                    selectedEdge = edge;
+                }else{
+                    selectedEdge.restartEdge();              //set edge after failure to idle for next run
+                }
+            }
+        }
+        return selectedEdge;
+    }
+    private void execute(Edge selectedEdge, Request request){
         List<ResultList> edgeResult = new ArrayList<ResultList>();
         edgeResult = selectedEdge.distributeWorkload(request);
 
         if(edgeResult == null ) {            //Edge fails, retry the request on other edge
             List<Request> retryRequestsOnOtherEdge = selectedEdge.getAllRequests();     //Here ALL requests of edge are retried, not only for starting point
             Location location = selectedEdge.getLocation();
-            Stack<Request> requestsLocation = new Stack<Request>();
+            HashSet<Request> requestsLocation = new HashSet<Request>();
+            requestsLocation.addAll(retryRequestsOnOtherEdge);
             if (location == Location.NORTH) {
                 requestsLocation.addAll(requestsNorth);
             } else if (location == Location.EAST) {
@@ -119,8 +119,6 @@ public class Controller {
             } else if (location == Location.WEST) {
                 requestsLocation.addAll(requestsWest);
             }
-            selectedEdge.restartEdge();              //set edge after failure to idle for next run
-            requestsLocation.addAll(retryRequestsOnOtherEdge);
             findBestEdgeAndDistributeWorkload(requestsLocation, location);
             return;
         }else{                              //Edge does not fail

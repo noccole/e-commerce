@@ -68,4 +68,27 @@ public class Request {
        return false;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Request request = (Request) o;
+
+        if (startTime != request.startTime) return false;
+        if (duration != request.duration) return false;
+        if (ressources != request.ressources) return false;
+        if (location != request.location) return false;
+        return state == request.state;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = location != null ? location.hashCode() : 0;
+        result = 31 * result + (state != null ? state.hashCode() : 0);
+        result = 31 * result + startTime;
+        result = 31 * result + duration;
+        result = 31 * result + ressources;
+        return result;
+    }
 }
