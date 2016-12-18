@@ -15,7 +15,7 @@ public class Edge {
     private Stack<Request> allRequests;
     private State state;
     private int idleStateEnergyConsumption=0;
-    private Random r = new Random();
+    private BooleanGenerator generator;
 
     public Edge(int numPms, int numVms, Location location) {
         this.state = State.IDLE;
@@ -32,7 +32,8 @@ public class Edge {
 
     public List<ResultList>  distributeWorkload( Request request) {
         allRequests.add(request);
-        if(r.nextBoolean()) {           //let fail edge randomly
+
+        if(generator.generateBoolean(0.85)) {           //let fail edge randomly
             this.execute(request);
             return results;
         }else{

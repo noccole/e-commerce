@@ -22,7 +22,7 @@ public class PhysicalMachine {
     private double workloadrateCpu;            // in percent
     private double workloadrateMemory;
     private double workloadrateNetwork;
-    private Random r = new Random();
+    private BooleanGenerator generator;
     private int idleStateEnergyConsumption;
     private final Logger logger = Logger.getLogger("physicalMachine");
 
@@ -61,7 +61,7 @@ public class PhysicalMachine {
         return new VirtualMachine(memoryVm, cpuVm, networkVm, pageDirtyingRate);
     }
     public ResultList distributeWorkload(Request request){
-        if(r.nextBoolean()) {           //let fail pm randomly
+        if(generator.generateBoolean(0.85)) {           //let fail pm randomly
             this.execute(request);
             return results;
         }else{

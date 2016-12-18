@@ -14,7 +14,7 @@ public class VirtualMachine {
     private int network;             //TODO: depends on the consumed memory! (does not depend on memory yet)
     private double pageDirtyingRate;
 
-    private Random r= new Random();
+    private BooleanGenerator generator;
     public VirtualMachine(int memory, int cpu, int network, double pageDirtyingRate){
             state = State.IDLE;
             this.memory = memory;
@@ -24,7 +24,7 @@ public class VirtualMachine {
     }
 
     public Request distributeWorkload(Request request){
-        if(r.nextBoolean()) {                   //check if vm fails
+        if(generator.generateBoolean(0.85)) {                   //check if vm fails
             return this.execute(request);
         }else{
             this.failVm();
