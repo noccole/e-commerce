@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Created by Nicole on 9/11/16.
@@ -29,6 +30,8 @@ public class Controller {
     private long durationRequest=0;			//Durationtime of a request
     private long durationRequestTotal=0;
     private long durationRecovery=0;		//Durationtime of recovery
+    private static final Logger logger = Logger.getLogger( Controller.class.getName() );
+    private int count = 0;
 
     public Controller(int numRequests){
         edges = new ArrayList<Edge>();
@@ -50,6 +53,7 @@ public class Controller {
         requestsSouth = new Stack<Request>();
         requestsWest = new Stack<Request>();
         createWorkload(numRequests);
+        logger.info("Create Edges!");
     }
 
     public void createWorkload(int numRequests){
@@ -58,6 +62,7 @@ public class Controller {
         for(int i=0; i<numRequests; i++){
             initialRequests.add(createRequestWithUniformVariables());
         }
+        logger.info("Create Workload!");
     }
     public void initialWorkloadDistribution(){
         for (Request request : initialRequests) {
@@ -72,11 +77,12 @@ public class Controller {
                 requestsWest.push(request);
             }
         }
-
+        PrintOutputBefore();
         findBestEdgeAndDistributeWorkload(requestsNorth, Location.NORTH);
         findBestEdgeAndDistributeWorkload(requestsEast, Location.EAST);
         findBestEdgeAndDistributeWorkload(requestsSouth, Location.SOUTH);
         findBestEdgeAndDistributeWorkload(requestsWest, Location.WEST);
+        PrintOutputAfter();
     }
 
     public void findBestEdgeAndDistributeWorkload(Stack<Request> requestsLocation, Location location){
@@ -85,6 +91,7 @@ public class Controller {
             Edge selectedEdge = selectPerfectEdge(req, location);
             this.execute(selectedEdge, req);
         }
+        logger.info("Find the edge, which fits best to distribute the workload!");
     }
     private Edge selectPerfectEdge(Request request, Location location){
         double lowestEnergy = Integer.MAX_VALUE;
@@ -103,41 +110,53 @@ public class Controller {
         }
         return selectedEdge;
     }
-    private void execute(Edge selectedEdge, Request request){
-        List<ResultList> edgeResult = new ArrayList<ResultList>();
-        edgeResult = selectedEdge.distributeWorkload(request);
-        Location location = selectedEdge.getLocation();
-        if(edgeResult == null ) {            //Edge fails, retry the request on other edge
-            List<Request> retryRequestsOnOtherEdge = selectedEdge.getAllRequests();     //Here ALL requests of edge are retried, not only for starting point
+    private void execute(Edge selectedEdge, Request request) {
+        try {
+            List<ResultList> edgeResult = new ArrayList<ResultList>();
+            edgeResult = selectedEdge.distributeWorkload(request);
+            Location location = selectedEdge.getLocation();
 
-            Stack<Request> requestsLocation = new Stack<Request>();
-            requestsLocation.addAll(retryRequestsOnOtherEdge);
-            if (location == Location.NORTH) {
-                requestsLocation.addAll(requestsNorth);
-            } else if (location == Location.EAST) {
-                requestsLocation.addAll(requestsEast);
-            } else if (location == Location.SOUTH) {
-                requestsLocation.addAll(requestsSouth);
-            } else if (location == Location.WEST) {
-                requestsLocation.addAll(requestsWest);
+            if (edgeResult == null) {            //Edge fails, retry the request on other edge
+                List<Request> retryRequestsOnOtherEdge = selectedEdge.getAllRequests();     //Here ALL requests of edge are retried, not only for starting point
+
+                Stack<Request> requestsLocation = new Stack<Request>();
+                requestsLocation.addAll(retryRequestsOnOtherEdge);
+                if (location == Location.NORTH) {
+                    requestsLocation.addAll(requestsNorth);
+                } else if (location == Location.EAST) {
+                    requestsLocation.addAll(requestsEast);
+                } else if (location == Location.SOUTH) {
+                    requestsLocation.addAll(requestsSouth);
+                } else if (location == Location.WEST) {
+                    requestsLocation.addAll(requestsWest);
+                }
+                findBestEdgeAndDistributeWorkload(requestsLocation, location);
+                return;
+
+            } else {
+                //Edge does not fail
+                if (location == Location.NORTH) {
+                    requestsNorth.remove(request);
+                } else if (location == Location.EAST) {
+                    requestsEast.remove(request);
+                } else if (location == Location.SOUTH) {
+                    requestsSouth.remove(request);
+                } else if (location == Location.WEST) {
+                    requestsWest.remove(request);
+                }
+                results.addAll(edgeResult);
+                return;
             }
-            findBestEdgeAndDistributeWorkload(requestsLocation, location);
-            return;
-        }else{
-            //Edge does not fail
-            if (location == Location.NORTH) {
-                requestsNorth.remove(request);
-            } else if (location == Location.EAST) {
-               requestsEast.remove(request);
-            } else if (location == Location.SOUTH) {
-                requestsSouth.remove(request);
-            } else if (location == Location.WEST) {
-                requestsWest.remove(request);
+
+        } catch (Exception e) {
+            if (count != 100) {
+                count++;
+                //System.out.println("Request Failed " + count);
+                execute(selectedEdge, request);
             }
-            results.addAll(edgeResult);
-            return;
+            //System.out.println("Request Failed over Limit and is terminated");
         }
-
+        logger.info("Distribute Workload");
     }
     //method for uniformly distributing the request variables: memory, cpu, startTime and duration
     public Request createRequestWithUniformVariables(){
@@ -149,6 +168,7 @@ public class Controller {
         Location randomLocation = VALUES.get(r.nextInt(VALUES.size()));
 
         Request request = new Request(startTime, duration, randomLocation,ressources);
+        logger.info("Distribute the request variables uniformly: memory, cpu, start time and duration");
         return request;
     }
     private boolean checkSlas(){
@@ -166,6 +186,7 @@ public class Controller {
             result.getNumResults();
             this.downtime++;
         }
+        logger.info("Check Performance! (max. 2 % failed tasks per fullfilled request)");
         //Performance: Maximum of 2 % failed tasks per fullfilled request
         if(totalFailed/numRequests < SLA_Performance){
             return true;
@@ -178,7 +199,7 @@ public class Controller {
         for(int x=0; x<=99; x++){
             durationRequestTotal+=durationRequestTotal+durationRequest;
         }
-
+        logger.info("Check Latency! (Per 100 tasks, max. 0.5 sec. processing time)");
         //Latency: Per 100 tasks maximum 0,5 seconds of processing time
         if(durationRequestTotal < SLA_Latency)
             return true;
@@ -187,6 +208,7 @@ public class Controller {
 
     private boolean checkRecovery(){
         double mttr = 0;
+        logger.info("Check Recovery! (Mean time to recover is 0.2 sec.)");
         if(durationRecovery < SLA_Recovery)
             return true;
 
@@ -201,11 +223,12 @@ public class Controller {
 
     private boolean checkAvailabilty(){
         float availability = 0;
-
+        logger.info("Check availability! (must be at least 98 % of the uptime");
         availability = this.uptime/(this.uptime+this.downtime);
 
         if(availability >= 0.98)
             return true;
+
 
         return false;
     }
@@ -241,5 +264,38 @@ public class Controller {
         String msg = new String(receivePacket.getData(), 0, receivePacket.getLength());
         System.out.println(msg);
         return null;
+    }
+
+    public void PrintOutputBefore(){
+
+        System.out.println("VALUES BEFORE EXECUTION:");
+
+        System.out.println("Amount of Edges: " +edges.size() );
+        int countPms = 0;
+        int countVms = 0;
+        for(Edge e : edges){
+            countPms += e.getPMs();
+            countVms += e.getVms();
+        }
+        System.out.println("Amount of PMs: "+ countPms);
+        System.out.println("Amount of VMs: "+ countVms);
+        System.out.println("Initial Requests size " +initialRequests.size());
+        System.out.println("Requests North " +requestsNorth.size());
+        System.out.println("Requests East " +requestsEast.size());
+        System.out.println("Requests South " +requestsSouth.size());
+        System.out.println("Requests West " +requestsWest.size());
+
+    }
+    public void PrintOutputAfter(){
+
+        System.out.println("VALUES AFTER EXECUTION:") ;
+        int sucessful = 0;
+
+        for(ResultList resultlist : results){
+            sucessful++;
+        }
+
+        System.out.println("Task Executions "+ sucessful);
+        System.out.println("Final Retries "+ (sucessful - initialRequests.size()));
     }
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Stack;
+import java.util.logging.Logger;
 
 /**
  * Created by Nicole on 9/11/16.
@@ -16,9 +17,14 @@ public class Edge {
     private State state;
     private int idleStateEnergyConsumption=0;
     private BooleanGenerator generator;
+    private static final Logger logger = Logger.getLogger( Edge.class.getName() );
+    private int numPMs;
+    private int numVms;
 
     public Edge(int numPms, int numVms, Location location) {
         this.state = State.IDLE;
+        this.numPMs = numPms;
+        this.numVms = numVms;
         this.pms =  new ArrayList<PhysicalMachine>();
         this.location = location;
         this.results = new ArrayList<ResultList>();
@@ -29,7 +35,6 @@ public class Edge {
             pms.add(pm);
         }
     }
-
     public List<ResultList>  distributeWorkload( Request request) {
         allRequests.add(request);
 
@@ -64,6 +69,7 @@ public class Edge {
         for(PhysicalMachine pm : pms){
             totalEnergyUtilization += pm.getTotalEnergyUtilization();
         }
+        logger.info("Calculate the total energy utilization for the edge!");
         return idleStateEnergyConsumption + totalEnergyUtilization;
     }
 
@@ -89,6 +95,13 @@ public class Edge {
 
     public Stack<Request> getAllRequests() {
         return allRequests;
+    }
+
+    public int getPMs(){
+        return this.numPMs;
+    }
+    public int getVms(){
+        return this.numVms;
     }
 }
 

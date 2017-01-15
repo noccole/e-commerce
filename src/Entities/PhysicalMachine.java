@@ -24,7 +24,7 @@ public class PhysicalMachine {
     private double workloadrateNetwork;
     private BooleanGenerator generator;
     private int idleStateEnergyConsumption;
-    private final Logger logger = Logger.getLogger("physicalMachine");
+    private static final Logger logger = Logger.getLogger( PhysicalMachine.class.getName() );
 
     ResultList results;
 
@@ -58,6 +58,7 @@ public class PhysicalMachine {
 
         //depends linearly on the combination of the utilized memory, CPU and network bandwidth)
         double pageDirtyingRate = (memoryVm/memory)+(cpuVm/cpu)+(networkVm/network);
+        logger.info("Create VMs with normal distributed variables!");
         return new VirtualMachine(memoryVm, cpuVm, networkVm, pageDirtyingRate);
     }
     public ResultList distributeWorkload(Request request){
@@ -72,6 +73,7 @@ public class PhysicalMachine {
     }
     private void execute(Request request){
         this.state = State.IDLE;
+        logger.info("Execute request on PM");
         for (VirtualMachine vm : vms) {
             if (vm.getState() != State.FAILED) {
                 Request resultRequest = vm.distributeWorkload(request);

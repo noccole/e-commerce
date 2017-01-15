@@ -9,9 +9,7 @@ public class Main{
         //Controller cont = new Controller(14271);
         Controller cont = new Controller(100);
         cont.initialWorkloadDistribution();
-        /*while(true) {
-            cont.socketAccept();
-        }*/
+        System.out.println("Summary: FINISHED SUCCESSFULLY");
         return;
     }
 }

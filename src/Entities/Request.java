@@ -1,6 +1,7 @@
 package Entities;
 
 import java.util.Random;
+import java.util.logging.Logger;
 
 /**
  * Created by Nicole on 8/12/16.
@@ -13,6 +14,7 @@ public class Request {
     private int duration; //milliseconds, max 5 ms
     private int ressources; //anzahl ressources die der request braucht (CPUs)
     private BooleanGenerator generator;
+    private static final Logger logger = Logger.getLogger( Request.class.getName() );
 
     public Request(int startTime, int duration, Location location, int ressources){
         this.state = State.IDLE;
