@@ -12,18 +12,17 @@ public class Request {
     private int startTime;
     private int duration; //milliseconds, max 5 ms
     private int ressources; //anzahl ressources die der request braucht (CPUs)
-    private Random r = new Random();
+    private BooleanGenerator generator;
 
     public Request(int startTime, int duration, Location location, int ressources){
-        state = State.NEW;
+        this.state = State.IDLE;
         this.startTime = startTime;
         this.duration = duration;
         this.location = location;
         this.ressources = ressources;       //energy per request
     }
     public Request execute(){
-
-        if(r.nextBoolean())
+        if(generator.generateBoolean(0.85))
             state= State.SUCCESS;
         else
             state = State.FAILED;
@@ -69,4 +68,27 @@ public class Request {
        return false;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Request request = (Request) o;
+
+        if (startTime != request.startTime) return false;
+        if (duration != request.duration) return false;
+        if (ressources != request.ressources) return false;
+        if (location != request.location) return false;
+        return state == request.state;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = location != null ? location.hashCode() : 0;
+        result = 31 * result + (state != null ? state.hashCode() : 0);
+        result = 31 * result + startTime;
+        result = 31 * result + duration;
+        result = 31 * result + ressources;
+        return result;
+    }
 }

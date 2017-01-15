@@ -8,7 +8,7 @@ public class Main{
     public static void main(String[] args) throws IOException {
         //Controller cont = new Controller(14271);
         Controller cont = new Controller(100);
-        cont.distributeWorkloadOnAllNodes();
+        cont.initialWorkloadDistribution();
         /*while(true) {
             cont.socketAccept();
         }*/

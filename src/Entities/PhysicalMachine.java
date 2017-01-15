@@ -3,7 +3,6 @@ package Entities;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Stack;
 import java.util.logging.Logger;
 
 /**
@@ -23,7 +22,7 @@ public class PhysicalMachine {
     private double workloadrateCpu;            // in percent
     private double workloadrateMemory;
     private double workloadrateNetwork;
-    private Random r = new Random();
+    private BooleanGenerator generator;
     private int idleStateEnergyConsumption;
     private final Logger logger = Logger.getLogger("physicalMachine");
 
@@ -61,35 +60,32 @@ public class PhysicalMachine {
         double pageDirtyingRate = (memoryVm/memory)+(cpuVm/cpu)+(networkVm/network);
         return new VirtualMachine(memoryVm, cpuVm, networkVm, pageDirtyingRate);
     }
+    public ResultList distributeWorkload(Request request){
+        if(generator.generateBoolean(0.85)) {           //let fail pm randomly
+            this.execute(request);
+            return results;
+        }else{
+            this.failPm();
+            return null;
+        }
 
-    public ResultList execute(Stack<Request>  requests){
-        if(r.nextBoolean()) {
-            this.state = State.PROCESSING;
-            if (requests.size() > this.getPmSize()) {
-                logger.info("location: " + requests.peek().getLocation() + " vms/ numrequests: " + this.getPmSize() + "/" + requests.size());
-            }
-
-            for (VirtualMachine vm : vms) {
-                if (requests.empty())
-                    break;
-                if (vm.getState() == State.IDLE) {
-                    results.addRequest(vm.execute(requests.pop()));
+    }
+    private void execute(Request request){
+        this.state = State.IDLE;
+        for (VirtualMachine vm : vms) {
+            if (vm.getState() != State.FAILED) {
+                Request resultRequest = vm.distributeWorkload(request);
+                if(resultRequest != null) {
+                    results.addRequest(resultRequest);   //write all Pm Results to results;
+                    return;
+                }else {                                         //vm fails
+                    this.execute(request);         //distribute to other vm
+                    return;
                 }
+            }else{
+                vm.restartVm();
             }
-            if (!requests.empty())
-                this.execute(requests);
-
-            results.calculateStartingPoint();
-            results.calculateFailedRequests();
-            this.state = State.IDLE;
-            return results;
         }
-        else {
-            this.state = State.FAILED;
-            return results;
-        }
-
-
     }
 
     public double getTotalEnergyUtilization(){
@@ -108,7 +104,10 @@ public class PhysicalMachine {
         return state;
     }
 
-    public void setState(State state) {
-        this.state = state;
+    public void restartPm(){
+        this.state = State.IDLE;
+    }
+    public void failPm(){
+        this.state = State.FAILED;
     }
 }

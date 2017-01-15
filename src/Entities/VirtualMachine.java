@@ -14,7 +14,7 @@ public class VirtualMachine {
     private int network;             //TODO: depends on the consumed memory! (does not depend on memory yet)
     private double pageDirtyingRate;
 
-    private Random r;
+    private BooleanGenerator generator;
     public VirtualMachine(int memory, int cpu, int network, double pageDirtyingRate){
             state = State.IDLE;
             this.memory = memory;
@@ -23,20 +23,30 @@ public class VirtualMachine {
             this.pageDirtyingRate = pageDirtyingRate;
     }
 
-    public Request execute(Request request){        //add param request
-        state = State.PROCESSING;
-        Request result = request.execute();
-        if(request.getSuccess())
-            state = State.IDLE;
-        else{
-            this.execute(request);  //if request has failed, try again!
+    public Request distributeWorkload(Request request){
+        if(generator.generateBoolean(0.85)) {                   //check if vm fails
+            return this.execute(request);
+        }else{
+            this.failVm();
+            return null;
         }
+    }
+    private Request execute (Request request) {
+        Request result = request.execute();
+        if (!request.getSuccess())                      //check if request failed
+            return this.execute(request);               //if request has failed, try again!
+
         return result;
     }
 
-
     public State getState() {
         return state;
+    }
+    public void restartVm(){
+        this.state = State.IDLE;
+    }
+    public void failVm(){
+        this.state = State.FAILED;
     }
 
 
