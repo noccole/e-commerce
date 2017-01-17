@@ -2,7 +2,6 @@ package Entities;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Created by Nicole on 14/11/16.
@@ -11,7 +10,6 @@ public class ResultList {
     private List<Request> results;
     private int startingPoint;
     private int numFailedRequests;
-    private static final Logger logger = Logger.getLogger( ResultList.class.getName() );
 
     public ResultList(){
         this.results = new ArrayList<Request>();

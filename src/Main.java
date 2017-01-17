@@ -7,9 +7,12 @@ import java.io.IOException;
 public class Main{
     public static void main(String[] args) throws IOException {
         //Controller cont = new Controller(14271);
-        Controller cont = new Controller(100);
+        Controller cont = new Controller(10000);
         cont.initialWorkloadDistribution();
-        System.out.println("Summary: FINISHED SUCCESSFULLY");
+        System.out.println("Summery: EXECUTION FINISHED SUCCESSFUL");
+        /*while(true) {
+            cont.socketAccept();
+        }*/
         return;
     }
 }

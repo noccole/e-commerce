@@ -19,12 +19,13 @@ public class PhysicalMachine {
     private int energyMemory;
     private int energyNetwork;
 
+    private int phsyicalmaschinefails;
     private double workloadrateCpu;            // in percent
     private double workloadrateMemory;
     private double workloadrateNetwork;
     private BooleanGenerator generator;
     private int idleStateEnergyConsumption;
-    private static final Logger logger = Logger.getLogger( PhysicalMachine.class.getName() );
+    private final Logger logger = Logger.getLogger("physicalMachine");
 
     ResultList results;
 
@@ -41,6 +42,7 @@ public class PhysicalMachine {
         workloadrateMemory = Math.random();//0.4;                   //Math.random() generates double value between 0.0 and 1.0
         workloadrateNetwork = Math.random();//0.1;
         state = State.NEW;
+        this.phsyicalmaschinefails =0;
         results = new ResultList();
         createVms(numVms);
     }
@@ -58,14 +60,14 @@ public class PhysicalMachine {
 
         //depends linearly on the combination of the utilized memory, CPU and network bandwidth)
         double pageDirtyingRate = (memoryVm/memory)+(cpuVm/cpu)+(networkVm/network);
-        logger.info("Create VMs with normal distributed variables!");
         return new VirtualMachine(memoryVm, cpuVm, networkVm, pageDirtyingRate);
     }
     public ResultList distributeWorkload(Request request){
-        if(generator.generateBoolean(0.85)) {           //let fail pm randomly
+        if(generator.generateBoolean(0.80)) {           //let fail pm randomly
             this.execute(request);
             return results;
         }else{
+            this.phsyicalmaschinefails ++;
             this.failPm();
             return null;
         }
@@ -73,7 +75,6 @@ public class PhysicalMachine {
     }
     private void execute(Request request){
         this.state = State.IDLE;
-        logger.info("Execute request on PM");
         for (VirtualMachine vm : vms) {
             if (vm.getState() != State.FAILED) {
                 Request resultRequest = vm.distributeWorkload(request);
@@ -90,9 +91,15 @@ public class PhysicalMachine {
         }
     }
 
+    public int getPhsyicalmaschinefails(){
+        return this.phsyicalmaschinefails;
+    }
     public double getTotalEnergyUtilization(){
         // consumed Cpu = workloadRateCpu * MaxCpu
         return idleStateEnergyConsumption + workloadrateCpu *energyCpu + workloadrateMemory* energyMemory + workloadrateNetwork * energyNetwork;
+    }
+    public List<VirtualMachine> getVms2(){
+        return this.vms;
     }
 
     public int getPmSize() {

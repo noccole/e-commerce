@@ -1,7 +1,6 @@
 package Entities;
 
 import java.util.Random;
-import java.util.logging.Logger;
 
 /**
  * Created by Nicole on 8/12/16.
@@ -14,26 +13,39 @@ public class Request {
     private int duration; //milliseconds, max 5 ms
     private int ressources; //anzahl ressources die der request braucht (CPUs)
     private BooleanGenerator generator;
-    private static final Logger logger = Logger.getLogger( Request.class.getName() );
+    private int executions;
+    private int executionfails;
+    private int downtime = 0;
 
     public Request(int startTime, int duration, Location location, int ressources){
         this.state = State.IDLE;
         this.startTime = startTime;
         this.duration = duration;
         this.location = location;
-        this.ressources = ressources;       //energy per request
+        this.ressources = ressources;
+        this.executions = 0; //energy per request
     }
     public Request execute(){
-        if(generator.generateBoolean(0.85))
-            state= State.SUCCESS;
-        else
+        Random rand = new Random();
+        executions++;
+        if(generator.generateBoolean(0.80)) {
+            state = State.SUCCESS;
+        }
+        else {
+            downtime =rand.nextInt(5);
+            executionfails++;
             state = State.FAILED;
+        }
 
         return this;
     }
 
     public int energyConsumption(){
         return ressources * duration;
+    }
+
+    public int getDowntime() {
+        return downtime;
     }
 
     public int getStartTime() {
@@ -58,6 +70,16 @@ public class Request {
 
     public void setRessources(int ressources) {
         this.ressources = ressources;
+    }
+
+    public int getExecutionfails()
+    {
+        return this.executionfails;
+    }
+
+    public int getExecutions()
+    {
+        return this.executions;
     }
 
     public Location getLocation() {
