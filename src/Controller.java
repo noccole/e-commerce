@@ -20,7 +20,7 @@ public class Controller {
     private Random r = new Random();
     private static double SLA_Performance = 0.5;
     private static double SLA_Latency = 0.8;
-    private static double SLA_Recovery = 0.9;
+    private static double SLA_Recovery = 2;
     private float uptime = 25;
     private long downtime = 1;
     private long durationRequest=0;			//Durationtime of a request
@@ -223,7 +223,7 @@ public class Controller {
         }
         logger.info("Check Recovery! (Mean time to recover from failure max. " + SLA_Recovery  + ")");
         double mttr = downtime/failures;
-        //System.out.println(""+mttr);
+        //System.out.println("MTTR: "+mttr);
         if( SLA_Recovery > mttr)
             return true;
 
